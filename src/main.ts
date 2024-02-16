@@ -8,6 +8,8 @@
 
 // Components
 import App from './App.vue'
+import { createI18n } from 'vue-i18n';
+import trLocale from './locales/tr.json';
 
 // Composables
 import { createApp } from 'vue'
@@ -16,11 +18,19 @@ import { createApp } from 'vue'
 import { registerPlugins } from '@/plugins'
 
 
+const i18n = createI18n({
+  legacy: false,
+    locale: 'tr', // kullanmak istediğiniz dil
+    messages: {
+      tr: trLocale, // çevirilerinizi içeren dosya
+      // diğer diller
+    },
+  });
 
 const app = createApp(App)
 
 registerPlugins(app)
-
+app.use(i18n)
 app.mount('#app')
 
 

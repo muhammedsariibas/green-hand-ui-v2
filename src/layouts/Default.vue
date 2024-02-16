@@ -2,14 +2,15 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import DrawerMenu from '@/components/DrawerMenu.vue'
 
 let drawer = ref(true);
 </script>
 <template>
   <v-card>
     <v-layout>
-      <v-navigation-drawer v-model="drawer" location="left">
-        <!-- <DrawerMenu /> -->
+      <v-navigation-drawer v-model="drawer" temporary location="left" theme="light">
+       <DrawerMenu />
       </v-navigation-drawer>
 
       <v-main class="pb-0">
@@ -20,7 +21,7 @@ let drawer = ref(true);
             background-color: rgb(245, 245, 249);
           "
         >
-          <v-window class="px-3 py-3" style="height: 100%; overflow-y: auto">
+          <v-window class="px-3 py-3" style="height: 100%; ">
             <v-app-bar
               density="compact"
               flat
@@ -33,18 +34,17 @@ let drawer = ref(true);
               ></v-app-bar-nav-icon>
 
               <v-spacer></v-spacer>
-             
-                <router-link to="/login" style="text-decoration: none; color: white;">
-                  <v-btn>
-                  Başvuru
-                </v-btn>
-                </router-link>
-           
 
+              <router-link
+                to="/application"
+                style="text-decoration: none; color: white"
+              >
+                <v-btn> Başvuru </v-btn>
+              </router-link>
             </v-app-bar>
 
             <v-card elevation="2">
-              <v-card-text style="height: 100vh; overflow-y: auto">
+              <v-card-text  style="height: 100vh;">
                 <slot />
               </v-card-text>
             </v-card>

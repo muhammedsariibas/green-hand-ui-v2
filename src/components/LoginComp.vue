@@ -49,6 +49,11 @@ const snackbarStore = useSnackbarStore()
 const tokenStore = useTokenStore();
 let isLoading = ref<Boolean>(false);
 
+const props = defineProps(["pageToRoute"])
+const emit = defineEmits<{
+  (e: 'loginDialog', value: boolean): void
+}>()
+
 let loginInfo = ref(<
   {
     username: string | null;
@@ -75,9 +80,11 @@ async function login() {
     if (resp.code == 200) {
       tokenStore.token = resp.token;
       tokenStore.isTokenExist = true;
-      router.push("/home");
+      if(props.pageToRoute != null || props.pageToRoute != undefined){
+        router.push(`${props.pageToRoute}`);
+      }
+      emit("loginDialog" , false)
     }else{
-      console.log("error")
       snackbarStore.makeToast(true , 'error', 'Kullanıcı adı veya Şifre yanlış')
       isLoading.value = false
     }

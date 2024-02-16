@@ -1,7 +1,7 @@
 
 <template>
   <div class="loginPageContainer">
-    <LoginCompVue />
+    <LoginCompVue page-to-route="/home" />
   </div>
 </template>
 
