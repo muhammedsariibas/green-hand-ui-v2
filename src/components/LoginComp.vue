@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-auto" max-width="500" min-width="500" theme="dark">
+  <v-card class="mx-auto" max-width="500" min-width="500" theme="dark" @keypress.enter="login">
     <v-card-title class="p text-h6 font-weight-regular justify-space-between">
       <v-col class="pl-1 py-2">
         <span>Kullanıcı Girişi</span>
@@ -8,7 +8,7 @@
       <v-divider></v-divider>
     </v-card-title>
 
-    <v-card-text>
+    <v-card-text >
       <v-text-field label="Kullanıcı Adı" v-model="loginInfo.username"></v-text-field>
       <v-text-field label="Şifre" type="password" v-model="loginInfo.password"></v-text-field>
       <span class="text-caption text-grey-darken-1">

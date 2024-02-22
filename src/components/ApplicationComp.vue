@@ -52,11 +52,11 @@ watchEffect(()=>{
   
 })
 
-function goToNextPage(next: any) {
+async function goToNextPage(next: any) {
   console.log(e1.value);
   switch (e1.value) {
     case "1":
-      if (personalInfo.value.validationOfapplicant()) {
+      if (await personalInfo.value.validationOfapplicant()) {
         next();
       }
       break;
@@ -132,7 +132,7 @@ async function postApplication() {
         ></v-progress-circular>
       </v-col>
     </v-dialog>
-    <v-stepper v-model="e1" bg-color="white">
+    <v-stepper v-model="e1" bg-color="white" elevation="0">
       <template v-slot:default="{ prev, next }">
         <v-stepper-header>
           <template v-for="n in steps" :key="n.id">
@@ -148,15 +148,15 @@ async function postApplication() {
           </template>
         </v-stepper-header>
 
-        <v-stepper-window>
-          <v-stepper-window-item value="1">
-            <v-card class="stepTemplateCard" rounded="false">
+        <v-stepper-window >
+          <v-stepper-window-item value="1"  >
+            <v-card class="stepTemplateCard" rounded="false" >
               <PersonalInfoStep ref="personalInfo" />
             </v-card>
           </v-stepper-window-item>
 
-          <v-stepper-window-item value="2">
-            <v-card class="stepTemplateCard px-0 py-0" rounded="false" style="overflow-y: scroll;"
+          <v-stepper-window-item value="2" >
+            <v-card flat class="stepTemplateCard px-0 py-0" rounded="false" style="overflow-y: scroll;"
               ><HouseHoldMemberStep  ref="householdMember"></HouseHoldMemberStep
             ></v-card>
           </v-stepper-window-item>
@@ -195,6 +195,6 @@ async function postApplication() {
 
 <style  scoped>
 .stepTemplateCard {
-  height: calc(100vh - 173px);
+  height: calc(100vh - 220px);
 }
 </style>

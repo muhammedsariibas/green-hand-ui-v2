@@ -216,7 +216,41 @@ async function pushNewStreet(streetName: any) {
   isLoading.value = false;
 }
 
-const validationOfapplicant = () => {
+async function checkSocialSecurityNumberIsUniqe(param: any) {
+  var resp = await fetchGet(
+    "/api/v1/application?statuses=NEW&statuses=WAITING&statuses=DECLINED&statuses=APPROVED"
+  );
+  if (applicationStore.getCurrentPersonalInfo.id == 0) {
+    console.log(resp);
+    var filteredData = resp.filter(
+      (t: any) => t.applicant.socialSecurityNo == param
+    );
+    console.log(filteredData);
+    if (filteredData.length > 0) {
+      return true;
+    } else {
+      false;
+    }
+  } else {
+    var applicationById = await fetchGet(
+      `/public/api/v1/application/${applicationStore.getCurrentApplication.id}`
+    );
+
+    if (applicationById.applicant.socialSecurityNo != param) {
+      var filteredData = resp.filter(
+        (t: any) => t.applicant.socialSecurityNo == param
+      );
+      if (filteredData.length > 0) {
+        return true;
+      } else {
+        false;
+      }
+    } else {
+      return false;
+    }
+  }
+}
+const validationOfapplicant = async () => {
   if (isStringShorterThan(applicant.value.name, 2)) {
     nameField.value = true;
     snackbarStore.makeToast(true, "error", "Lütfen Adınızı kontrol ediniz");
@@ -233,6 +267,16 @@ const validationOfapplicant = () => {
       true,
       "error",
       "Lütfen Tc kimlik numaranızı kontrol ediniz"
+    );
+    return false;
+  } else if (
+    await checkSocialSecurityNumberIsUniqe(applicant.value.socialSecurityNo)
+  ) {
+    socialSecurityNo.value = true;
+    snackbarStore.makeToast(
+      true,
+      "error",
+      "Bu Tc kimlik numarası başka bir başvuruda kullanılıyor."
     );
     return false;
   } else {

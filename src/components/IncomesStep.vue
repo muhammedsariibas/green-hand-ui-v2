@@ -326,6 +326,5 @@ watchEffect(() => {
         </v-btn>
       </v-col>
     </v-col>
-    {{ applicationStore.getCurrentIncomes }}
   </v-card>
 </template>

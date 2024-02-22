@@ -293,6 +293,5 @@ defineExpose({validationOfExpenses})
         </v-btn>
       </v-col>
     </v-col>
-    {{ applicationStore.getCurrentproperties }}
   </v-card>
 </template>
