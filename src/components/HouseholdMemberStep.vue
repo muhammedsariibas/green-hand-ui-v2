@@ -232,8 +232,9 @@ watchEffect(() => {
 </script>
 <template>
   <v-card class="bg-light d-flex flex-wrap" flat >
-    <v-col class="d-flex justify-space-between" cols="12" sm="12" md="12"
-      ><h1
+    <v-col class="d-flex justify-space-between py-0" cols="12" sm="12" md="12" >
+      <h1
+        class="py-0"
         style="
           font-family: 'Roboto', sans-serif;
           font-family: 'Roboto Condensed', sans-serif;

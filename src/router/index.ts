@@ -11,6 +11,7 @@ import VisitReportComp from '../components/VisitReportComp.vue'
 import Users from '../components/Users.vue'
 import Roles from '../components/Roles.vue'
 import Index from '../components/Index.vue'
+import OneTimeAidApplication from '@/components/Public/OneTimeAidApplication.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
 
@@ -29,6 +30,14 @@ const router = createRouter({
       component: LoginPage,
       meta: {
         layout: LoginPage,
+      }
+    },
+    {
+      name: 'one-time-aid-application',
+      path: '/one-time-aid',
+      component: () => import('@/components/Public/OneTimeAidApplication.vue'),
+      meta : {
+          layout : OneTimeAidApplication
       }
     },
     {

@@ -25,6 +25,7 @@ const householdMember = ref(<any>null);
 const incomes = ref(<any>null);
 const expenses = ref(<any>null);
 const nextText = ref<any>("İleri");
+const prevText = ref(<any>"Ana Sayfaya Dön")
 const isLoading = ref<boolean>(false);
 var steps = ref<any>([
   { id: "1", code: "personalInfo", name: "Kişisel Bilgiler" },
@@ -57,6 +58,7 @@ async function goToNextPage(next: any) {
   switch (e1.value) {
     case "1":
       if (await personalInfo.value.validationOfapplicant()) {
+        prevText.value = "Geri"
         next();
       }
       break;
@@ -81,7 +83,16 @@ async function goToNextPage(next: any) {
   }
 }
 function goToPrevPage(prev: any) {
-  prev();
+  if(e1.value == "1"){
+   
+    router.push("/")
+  }else if(e1.value == "2" ){
+    prevText.value = "Ana Sayfaya Dön"
+    prev();
+  }else{
+    prev();
+  }
+
 }
 
 async function postApplication() {
@@ -132,7 +143,9 @@ async function postApplication() {
         ></v-progress-circular>
       </v-col>
     </v-dialog>
+  
     <v-stepper v-model="e1" bg-color="white" elevation="0">
+      
       <template v-slot:default="{ prev, next }">
         <v-stepper-header>
           <template v-for="n in steps" :key="n.id">
@@ -146,8 +159,11 @@ async function postApplication() {
 
             <v-divider v-if="n.id != steps.length" :key="n"></v-divider>
           </template>
+        
         </v-stepper-header>
+  
 
+        
         <v-stepper-window >
           <v-stepper-window-item value="1"  >
             <v-card class="stepTemplateCard" rounded="false" >
@@ -181,7 +197,7 @@ async function postApplication() {
         <v-stepper-actions
           
           :next-text="nextText"
-          prev-text="Geri"
+          :prev-text="prevText"
           color="success"
           :disabled="false"
           @click:prev="goToPrevPage(prev)"

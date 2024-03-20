@@ -217,21 +217,34 @@ async function pushNewStreet(streetName: any) {
 }
 
 async function checkSocialSecurityNumberIsUniqe(param: any) {
-  var resp = await fetchGet(
-    "/api/v1/application?statuses=NEW&statuses=WAITING&statuses=DECLINED&statuses=APPROVED"
-  );
+  console.log(param);
   if (applicationStore.getCurrentPersonalInfo.id == 0) {
-    console.log(resp);
-    var filteredData = resp.filter(
-      (t: any) => t.applicant.socialSecurityNo == param
+    // var resp = await fetchPost(
+    //   "/public/api/v1/application/check-social-security-no",
+    //   { method: "POST" },
+
+    //     Number(param)
+
+    // );
+
+    var resp = await fetch(
+      `http://${window.location.hostname}:9080/public/api/v1/application/check-social-security-no`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        redirect: "follow",
+        referrerPolicy: "no-referrer",
+        body: param,
+      }
     );
-    console.log(filteredData);
-    if (filteredData.length > 0) {
-      return true;
-    } else {
-      false;
-    }
+   
+    return await resp.json()
   } else {
+    var resp = await fetchGet(
+      "/api/v1/application?statuses=NEW&statuses=WAITING&statuses=DECLINED&statuses=APPROVED"
+    );
     var applicationById = await fetchGet(
       `/public/api/v1/application/${applicationStore.getCurrentApplication.id}`
     );
@@ -279,7 +292,17 @@ const validationOfapplicant = async () => {
       "Bu Tc kimlik numarası başka bir başvuruda kullanılıyor."
     );
     return false;
-  } else {
+  } else if (
+    applicant.value.propertyStatus == null
+  ) {
+   propertyStatus.value = true
+   snackbarStore.makeToast(
+      true,
+      "error",
+      "Lütfen mülk durumu bilgisini kontrol ediniz"
+    );
+    return false;
+  }else {
     applicationStore.application.applicant = applicant.value;
     return true;
   }
@@ -324,8 +347,9 @@ watchEffect(() => {
         :width="7"
       ></v-progress-circular>
     </v-dialog>
-    <v-col cols="12" sm="12" md="12">
+    <v-col cols="12" sm="12" md="12" class="py-0">
       <h1
+        class="py-0"
         style="
           font-family: 'Roboto', sans-serif;
           font-family: 'Roboto Condensed', sans-serif;
@@ -558,7 +582,7 @@ watchEffect(() => {
       ></v-autocomplete>
     </v-col>
 
-    <v-col cols="12" sm="12" md="12">İletişim Bilgileri*</v-col>
+    <v-col cols="12" sm="12" md="12" class="py-1">İletişim Bilgileri*</v-col>
     <v-col cols="12" sm="5" md="5">
       <v-text-field
         :error="phone"
@@ -646,7 +670,7 @@ watchEffect(() => {
       ></v-autocomplete>
     </v-col>
 
-    <v-col cols="12" sm="10" md="10">
+    <v-col cols="12" sm="8" md="8">
       <v-autocomplete
         :error="addressStreet"
         hide-details
@@ -689,7 +713,7 @@ watchEffect(() => {
         </v-col>
       </v-dialog>
     </v-col>
-    <v-col cols="12" sm="1" md="1">
+    <v-col cols="12" sm="2" md="2">
       <v-text-field
         :error="buildingNo"
         type="number"
@@ -701,7 +725,7 @@ watchEffect(() => {
         variant="outlined"
       ></v-text-field>
     </v-col>
-    <v-col cols="12" sm="1" md="1">
+    <v-col cols="12" sm="2" md="2">
       <v-text-field
         :error="apartmentNo"
         type="number"

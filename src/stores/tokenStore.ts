@@ -10,7 +10,7 @@ export interface Token {
 export const useTokenStore = defineStore('token', {
   state: () => ({
     token : null, 
-    isTokenExist : null, 
+    isTokenExist : true, 
   } as Token),
   
   getters : {

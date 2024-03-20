@@ -77,6 +77,7 @@ async function fetchGet(path: string): Promise<any> {
             headers: _headers
         });
 
+        console.log(resp.status)
         if (resp.status === 403) {
 
             tokenStore.isTokenExist = false;
