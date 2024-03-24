@@ -6,6 +6,11 @@ export const useMenuStore = defineStore('menuStore', {
     state: () => ({
         menu: [
             {
+                to: "/home",
+                title: "Anasayfa",
+                value: "home",
+            },
+            {
                 to: "/applications",
                 title: "Başvurular",
                 value: "applications",

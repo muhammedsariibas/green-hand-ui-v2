@@ -32,6 +32,12 @@ let drawer = ref(true);
                 @click.stop="drawer = !drawer"
                 color="white"
               ></v-app-bar-nav-icon>
+              <router-link
+                to="/home"
+                style="text-decoration: none; color: white"
+              >
+                <v-btn> Anasayfa </v-btn>
+              </router-link>
 
               <v-spacer></v-spacer>
 

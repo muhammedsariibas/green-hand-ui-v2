@@ -1,6 +1,6 @@
 const approvalStatus = [
-    { id: "APPROVED", name: "ONAYLANDI" },
     { id: "NEW", name: "BEKLEMEDE" },
+    { id: "APPROVED", name: "ONAYLANDI" },
     { id: "DECLINED", name: "REDDEDİLDİ" },
   ];
   
