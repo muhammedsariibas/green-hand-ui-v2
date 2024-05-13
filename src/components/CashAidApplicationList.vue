@@ -14,7 +14,7 @@ import "ag-grid-community/styles/ag-theme-material.css"; // Optional theme CSS
 import "ag-grid-enterprise";
 import "@vuepic/vue-datepicker/dist/main.css";
 import { useI18n } from "vue-i18n";
-import { GridOptions, LicenseManager } from "ag-grid-enterprise";
+import { GridOptions, LicenseManager, RowNode } from "ag-grid-enterprise";
 import { onMounted, ref, watchEffect } from "vue";
 import { tr } from "date-fns/locale";
 import { count } from "console";
@@ -56,12 +56,9 @@ const newVisitObject = ref(<any>{
 const { t } = useI18n();
 
 const columnDefs = ref([
-  {
-    headerName: "",
-    field: "count",
-    maxWidth: 40,
-    valueGetter: "node.rowIndex + 1",
-  },
+ {
+  headerName: '#', valueGetter: 'node.rowIndex + 1' ,field : "count", maxWidth: 40,
+ },
   {
     field: "applicant.name",
     headerName: "Ad",
@@ -79,6 +76,31 @@ const columnDefs = ref([
     filter: "agTextColumnFilter",
   },
   {
+
+    headerName: "Memleket",
+    filter: "agTextColumnFilter",
+    valueGetter: (params: any) => {
+      // params.node.data.province ? params.node.data.province.name /  : null;
+      let province= null;
+      let district= null;
+      let neighborhood= null;
+      
+      if(params.node.data.applicant.province != null){
+        console.log(params.node.data.applicant.province.name)
+        province = params.node.data.applicant.province.name;
+      }
+      if(params.node.data.applicant.district != null){
+        district = params.node.data.applicant.district.name;
+      }
+      if(params.node.data.applicant.neighborhood != null){
+        neighborhood = params.node.data.applicant.neighborhood.name;
+      }
+      
+      
+      return province + "/" + district + "/" + neighborhood 
+    }
+  },
+  {
     field: "applicant.phone",
     headerName: "Tel",
     filter: "agTextColumnFilter",
@@ -88,7 +110,7 @@ const columnDefs = ref([
     headerName: "Onay Durumu",
     filter: "agTextColumnFilter",
     valueGetter: (params: any) => {
-      return t(params.node.data.status);
+      return params.node.data.status ? t(params.node.data.status) : null;
     },
   },
   {
@@ -118,26 +140,27 @@ const defaultColDef = {
   filter: true,
   flex: 1,
   floatingFilter: true,
+  resizable : true
 };
 
-//ONMOUNTED
-onMounted(async () => {
- 
-  
-  
- 
-});
+
 
 function setPinnedRowData() {
+  
   let count = 0;
 
- 
+  gridApi.value.forEachNode((param : any)=>{
+    count += 1;
+  })
 
+  gridApi.value.setPinnedBottomRowData([
+    {
+      applicant : {
+        name : `Toplam Başvuru : ${count}`
+      }
 
-  gridApi.value.setPinnedBottomRowData([{
-    count : 0
-  }])
-
+    },
+  ]);
 
   
 }
@@ -152,6 +175,7 @@ async function fetchData(statuses: any) {
   } catch (err) {
     snackbarStore.makeToast(true, "error", "Bir problem oluştu");
   }
+ 
   isLoading.value = false;
   return data;
 }
@@ -193,7 +217,9 @@ async function onGridReady(params: any) {
   columnApi.value = params.columnApi;
   userData.value = await fetchGet("/api/v1/auth/users");
     
-    setPinnedRowData()
+  setPinnedRowData()
+  
+  
 
 }
 async function closeDialogAndRefreshData() {
@@ -261,6 +287,10 @@ async function addVisit() {
 watchEffect(async () => {
   if (selectedApprovalStatus.value != null) {
     rowData.value = await fetchData(selectedApprovalStatus.value);
+    setTimeout(()=>{
+      setPinnedRowData()
+    },200)
+    
   }
 });
 </script>
@@ -286,7 +316,7 @@ watchEffect(async () => {
         md="12"
         class="d-flex justify-center align-center"
       >
-        <v-col cols="12" sm="10" md="10" style="background-color: white">
+        <v-col cols="12" sm="11" md="11" style="background-color: white">
           <v-btn
             style="float: right"
             size="medium"
@@ -461,19 +491,9 @@ watchEffect(async () => {
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-col cols="12" sm="12" md="12"
-      ><h2
-        style="
-          font-family: 'Roboto', sans-serif;
-          font-family: 'Roboto Condensed', sans-serif;
-          font-family: 'Roboto Slab', serif;
-        "
-      >
-        Nakdi Yardım Başvuruları
-      </h2></v-col
-    >
+  
     <v-col cols="12" md="12" sm="12" class="py-1">
-      <v-col class="px-0 py-0" cols="12" sm="4" md="4">
+      <v-col class="px-0 pb-0 pt-2" cols="12" sm="4" md="4" >
         <v-select
           variant="outlined"
           rounded="0"

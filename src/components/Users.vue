@@ -9,13 +9,14 @@ import "ag-grid-enterprise";
 import { GridOptions, LicenseManager } from "ag-grid-enterprise";
 import { fetchGet, fetchPost } from "../utils/fetchUtils";
 import { useSnackbarStore } from "@/stores/snackbarStore";
+import { onMounted } from "vue";
 LicenseManager.setLicenseKey(
   "For_Trialing_ag-Grid_Only-Not_For_Real_Development_Or_Production_Projects-Valid_Until-16_February_2023_[v2]_MTY3NjUwNTYwMDAwMA==5a37b6995fef0d066d9a3225009488ac"
 );
 
 //DATA
 let snackbarStore = useSnackbarStore();
-const isLoading = ref<any>(false)
+const isLoading = ref<any>(false);
 const headerUser = ref(<string | null>null);
 const dialog = ref(<boolean>false);
 const text = ref(<string | null>null);
@@ -27,7 +28,9 @@ let columnApi = ref(null);
 const rowData = ref([]);
 var roleData2 = ref(<any>null);
 var userIdForDelete = ref(<any>null);
-
+const provinceData = ref(<any>[]);
+const districtData = ref(<any>[]);
+const neighborhoodData = ref(<any>[]);
 const isEnabledData = [
   { id: true, name: "aktif" },
   { id: false, name: "pasif" },
@@ -70,18 +73,61 @@ const columnDefs = ref([
 ]);
 
 //FUNCTIONS
+onMounted(async () => {
+  const provinceResult = await fetchGet(
+    "/public/api/v1/geo/country/1/province"
+  );
+  provinceData.value = provinceResult;
+});
+
+async function getDistrictData(isForceEmpty: boolean) {
+  if (isForceEmpty) {
+    userInfo.value.district = null;
+  }
+
+  if (
+    userInfo.value.province?.id == undefined ||
+    userInfo.value.province?.id == null
+  ) {
+    districtData.value = [];
+  } else {
+    const districtResult = await fetchGet(
+      `/public/api/v1/geo/province/${userInfo.value.province?.id}/district`
+    );
+    districtData.value = districtResult;
+  }
+
+  if (userInfo.value.district != null) {
+    getNeighborhoodData(false);
+  }
+}
+async function getNeighborhoodData(isForceEmpty: boolean) {
+  if (isForceEmpty) {
+    userInfo.value.neighborhoodId = null;
+  }
+  if (
+    userInfo.value?.district?.id == undefined ||
+    userInfo.value?.district?.id == null
+  ) {
+    neighborhoodData.value = [];
+  } else {
+    const neighborhoodResult = await fetchGet(
+      `/public/api/v1/geo/district/${userInfo.value?.district?.id}/neighborhood`
+    );
+    neighborhoodData.value = neighborhoodResult;
+  }
+}
 
 const updateData = (data: any) => {
-    rowData.value = data;
-  };
+  rowData.value = data;
+};
 
 async function onGridReady(params: any) {
-  isLoading.value=true
+  isLoading.value = true;
 
   gridApi.value = params.api;
   columnApi.value = params.columnApi;
 
- 
   var users = await fetchGet("/api/v1/auth/users");
   var roles = await fetchGet("/api/v1/auth/roles");
   for (var z = 0; z < users.length; z++) {
@@ -90,11 +136,10 @@ async function onGridReady(params: any) {
       users[z].roleIds[i] = data[0].name;
     }
   }
- 
-  updateData(users);
-  isLoading.value = false
-}
 
+  updateData(users);
+  isLoading.value = false;
+}
 
 function getContextMenuItems(event: any) {
   return [
@@ -132,28 +177,35 @@ function getContextMenuItems(event: any) {
 }
 
 async function deleteUser() {
-  isLoading.value=true
+  isLoading.value = true;
   var resp = await fetchGet(`/api/v1/auth/user/${userIdForDelete.value}`);
   if (resp.code == 200) {
-    snackbarStore.makeToast(true , "success" , text.value = "İşleminiz gerçekleşti")
-    fetchUsers()
+    snackbarStore.makeToast(
+      true,
+      "success",
+      (text.value = "İşleminiz gerçekleşti")
+    );
+    fetchUsers();
     deleteUserDialog.value = false;
   } else {
-    snackbarStore.makeToast(true , "error" , text.value = "Bir hata oluştu")
+    snackbarStore.makeToast(true, "error", (text.value = "Bir hata oluştu"));
     deleteUserDialog.value = false;
   }
-  isLoading.value=false;
+  isLoading.value = false;
 }
-async function fetchUsers(){
-  isLoading.value = true
+async function fetchUsers() {
+  isLoading.value = true;
   var users = await fetchGet("/api/v1/auth/users");
   rowData.value = users;
-  isLoading.value = false
+  isLoading.value = false;
 }
 async function editUser() {
-  isLoading.value=true
+  isLoading.value = true;
+  delete userInfo.value.province
+  delete userInfo.value.district
+  console.log(userInfo.value)
   var resp = await fetchPost(
-    "/api/v1/auth/register",
+    "/public/api/v1/auth/register",
     {
       method: "POST",
     },
@@ -161,18 +213,22 @@ async function editUser() {
   );
   dialog.value = false;
   if (resp.code == 200) {
-    snackbarStore.makeToast(true , "success" , text.value = "İşleminiz gerçekleşti")
-    fetchUsers()
+    snackbarStore.makeToast(
+      true,
+      "success",
+      (text.value = "İşleminiz gerçekleşti")
+    );
+    fetchUsers();
   } else {
-    snackbarStore.makeToast(true , "error" , text.value = "Bir hata oluştu")
+    snackbarStore.makeToast(true, "error", (text.value = "Bir hata oluştu"));
   }
-  isLoading.value=false;
+  isLoading.value = false;
 }
 async function addUser() {
   headerUser.value = "Kullanıcı ekle";
-  isLoading.value = true
+  isLoading.value = true;
   roleData2.value = await fetchGet("/api/v1/auth/roles");
-  fetchUsers()
+  fetchUsers();
   isLoading.value = false;
   userInfo.value = {
     id: 0,
@@ -183,6 +239,7 @@ async function addUser() {
     phone: null,
     enabled: true,
   };
+
   dialog.value = true;
 }
 </script>
@@ -288,6 +345,49 @@ async function addUser() {
                 multiple
               ></v-select>
             </v-col>
+            <v-col cols="12" sm="12" md="12" class="d-flex">
+              <v-autocomplete
+                hide-details
+                clearable
+                bg-color="#F5F5F5"
+                v-model="userInfo.province"
+                label="Memleketi"
+                :items="provinceData"
+                item-value="id"
+                item-title="name"
+                return-object
+                @update:modelValue="getDistrictData(true)"
+              ></v-autocomplete>
+
+              <v-autocomplete
+                style="padding-left: 6px"
+                hide-details
+                bg-color="#F5F5F5"
+                v-if="userInfo.province != null"
+                clearable
+                v-model="userInfo.district"
+                label="İlçesi"
+                :items="districtData"
+                item-value="id"
+                item-title="name"
+                @update:modelValue="getNeighborhoodData(true)"
+                return-object
+              ></v-autocomplete>
+
+              <v-autocomplete
+                style="padding-left: 6px"
+                hide-details
+                bg-color="#F5F5F5"
+                v-if="userInfo.district != null"
+                clearable
+                v-model="userInfo.neighborhoodId"
+                label="Mahalle "
+                :items="neighborhoodData"
+                item-title="name"
+                item-value="id"
+        
+              ></v-autocomplete>
+            </v-col>
           </v-col>
         </v-card-text>
         <v-card-actions>
@@ -301,8 +401,6 @@ async function addUser() {
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-  
 
     <v-dialog width="600" v-model="deleteUserDialog" persistent>
       <v-card>

@@ -49,8 +49,8 @@ let drawer = ref(true);
               </router-link>
             </v-app-bar>
 
-            <v-card elevation="2">
-              <v-card-text  style="height: 100vh;">
+            <v-card elevation="2" style="overflow-y: auto;">
+              <v-card-text  style="height:calc( 100vh - 80px);" >
                 <slot />
               </v-card-text>
             </v-card>

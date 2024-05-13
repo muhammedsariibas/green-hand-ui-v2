@@ -215,7 +215,7 @@ async function editRole() {
     >
     <div>
       <ag-grid-vue
-        style="height: calc(100vh - 64px)"
+      style="height: calc(100vh - 220px)"
         class="ag-theme-alpine"
         :columnDefs="columnDefs"
         @grid-ready="onGridReady"

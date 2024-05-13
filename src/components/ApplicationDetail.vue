@@ -2,7 +2,7 @@
 const props: any = defineProps(["application"]);
 </script>
 <template>
-  <v-col cols="12" sm="12" md="12" class="px-0 py-0 d-flex flex-wrap">
+  <v-col cols="12" sm="12" md="12" class="px-0 py-0 d-flex flex-wrap" style="overflow: auto; height: 90vh;">
     <v-col cols="12" sm="12" md="12"
       ><h1
         style="
@@ -68,7 +68,7 @@ const props: any = defineProps(["application"]);
             <td>
               {{
                 application.applicant.birthDate
-                  ? application.applicant.birthDate
+                  ? application.applicant.birthDate + ` (${new Date().getFullYear() - new Date(application.applicant.birthDate).getFullYear()} yaşında)`
                   : "--"
               }}
             </td>
@@ -203,7 +203,7 @@ const props: any = defineProps(["application"]);
             </td>
             <td>{{ item.name ? item.name : "--" }}</td>
             <td>{{ item.surname ? item.surname : "--" }}</td>
-            <td>{{ item.birthDate ? item.birthDate : "--" }}</td>
+            <td>{{ item.birthDate ? item.birthDate + ` (${new Date().getFullYear() - new Date(item.birthDate).getFullYear()} yaşında)` : "--" }}</td>
             <td>{{ item.gender ? $t(item.gender) : "--" }}</td>
             <td>{{ item.birthPlace ? item.birthPlace : "--" }}</td>
             <td>{{ item.maritalStatus ? $t(item.maritalStatus) : "--" }}</td>

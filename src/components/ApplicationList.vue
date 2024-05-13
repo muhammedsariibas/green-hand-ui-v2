@@ -23,9 +23,9 @@ const tab = ref<any>(null);
       bg-color="#543AB7"
     >
       <v-tab value="one">Nakdi</v-tab>
-      <v-tab value="two">Tek seferlik</v-tab>
+      <v-tab value="two">Diğer</v-tab>
     </v-tabs>
-    <v-window v-model="tab">
+    <v-window v-model="tab" >
         <v-window-item value="one">
           <CashAidApplicationList></CashAidApplicationList>
         </v-window-item>

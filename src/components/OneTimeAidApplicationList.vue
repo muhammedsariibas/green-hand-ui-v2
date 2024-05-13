@@ -67,13 +67,37 @@ const columnDefs = ref([
     cellRenderer: "agGroupCellRenderer",
     filter: "agTextColumnFilter",
   },
-  {
-    field: "aidStatus",
-    headerName: "Durum",
-    cellRenderer: "agGroupCellRenderer",
-    filter: "agTextColumnFilter",
-  },
+  
+  // {
+  //   field: "aidStatus",
+  //   headerName: "Onay Durumu",
+  //   filter: "agTextColumnFilter",
+  //   valueGetter: (params: any) => {
+  //     return params.node.data.aidStatus ? t(params.node.data.aidStatus) : null;
+  //   },
+  // },
 ]);
+
+
+function setPinnedRowData() {
+  
+  let count = 0;
+
+  gridApi.value.forEachNode((param : any)=>{
+    count += 1;
+  })
+
+  gridApi.value.setPinnedBottomRowData([
+    {
+   
+        name : `Toplam Başvuru : ${count}`
+      
+
+    },
+  ]);
+
+  
+}
 
 // detailCellRenderer: agGridApplicantsInfo,
 const gridOptions: GridOptions<any> = {
@@ -87,6 +111,7 @@ const defaultColDef = {
   filter: true,
   flex: 1,
   floatingFilter: true,
+  resizable : true
 };
 
 //ONMOUNTED
@@ -120,17 +145,7 @@ async function fetchData(catId: any) {
   return data;
 }
 
-function getContextMenuItems(params: any) {
-  return [
-    {
-      name: "Başvuruyu düzenle",
-      action: async () => {
-        appUpdateDialog.value = true;
-        applicationIdFromContextMenuItem.value = params.node.data.id;
-      },
-    },
-  ];
-}
+
 
 function onRowDoubleClicked(params: any) {}
 
@@ -148,6 +163,9 @@ async function closeDialogAndRefreshData() {
 watchEffect(async () => {
   if (selectedAidCat.value != null) {
     rowData.value = await fetchData(selectedAidCat.value);
+    setTimeout(() => {
+      setPinnedRowData()
+    }, 200);
   }
 });
 </script>
@@ -167,24 +185,14 @@ watchEffect(async () => {
       </v-col>
     </v-dialog>
 
-    <v-col cols="12" sm="12" md="12"
-      ><h2
-        style="
-          font-family: 'Roboto', sans-serif;
-          font-family: 'Roboto Condensed', sans-serif;
-          font-family: 'Roboto Slab', serif;
-        "
-      >
-        Kömür ve Kart Yardımları
-      </h2></v-col
-    >
+   
     <v-col cols="12" md="12" sm="12" class="py-1">
-      <v-col class="px-0 py-0" cols="12" sm="4" md="4">
+      <v-col class="px-0 pb-0 pt-2" cols="12" sm="4" md="4">
         <v-select
           variant="outlined"
           rounded="0"
           density="compact"
-          label="Onay Durumu"
+          label="Kategori"
           :items="aidCategories"
           item-title="name"
           item-value="id"

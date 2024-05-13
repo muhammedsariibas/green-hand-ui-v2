@@ -15,7 +15,7 @@
           </template> </VueDatePicker
       ></v-col>
       <v-col
-        ><v-btn @click="filterChartByYear" color="primary">Filtrele</v-btn>
+        ><v-btn @click="filterChartByYear" color="priMarty">Filtrele</v-btn>
       </v-col>
     </v-col>
     <BarChart style="height: 560px" v-bind="barChartProps" />
@@ -45,48 +45,48 @@ onMounted(() => {
 
 function sumMonthsPaid(elm: any) {
   if (elm.visitMonth == 1) {
-    months.value.jan = months.value.jan + elm.paidAmount;
+    months.value.Ocak = months.value.Ocak + elm.paidAmount;
   }
 
   if (elm.visitMonth == 2) {
-    months.value.feb = months.value.feb + elm.paidAmount;
+    months.value.Şubat = months.value.Şubat + elm.paidAmount;
   }
 
   if (elm.visitMonth == 3) {
-    months.value.mar = months.value.mar + elm.paidAmount;
+    months.value.Mart = months.value.Mart + elm.paidAmount;
   }
 
   if (elm.visitMonth == 4) {
-    months.value.apr = months.value.apr + elm.paidAmount;
+    months.value.Nisan = months.value.Nisan + elm.paidAmount;
   }
 
   if (elm.visitMonth == 5) {
-    months.value.may = months.value.may + elm.paidAmount;
+    months.value.Mayıs = months.value.Mayıs + elm.paidAmount;
   }
 
   if (elm.visitMonth == 6) {
-    months.value.jun = months.value.jun + elm.paidAmount;
+    months.value.Haziran = months.value.Haziran + elm.paidAmount;
   }
 
   if (elm.visitMonth == 7) {
-    months.value.jul = months.value.jul + elm.paidAmount;
+    months.value.Temmuz = months.value.Temmuz + elm.paidAmount;
   }
 
   if (elm.visitMonth == 8) {
-    months.value.aug = months.value.aug + elm.paidAmount;
+    months.value.Ağustos = months.value.Ağustos + elm.paidAmount;
   }
 
   if (elm.visitMonth == 9) {
-    months.value.sep = months.value.sep + elm.paidAmount;
+    months.value.Eylül = months.value.Eylül + elm.paidAmount;
   }
   if (elm.visitMonth == 10) {
-    months.value.oct = months.value.oct + elm.paidAmount;
+    months.value.Ekim = months.value.Ekim + elm.paidAmount;
   }
   if (elm.visitMonth == 11) {
-    months.value.nov = months.value.nov + elm.paidAmount;
+    months.value.Kasım = months.value.Kasım + elm.paidAmount;
   }
   if (elm.visitMonth == 12) {
-    months.value.dec = months.value.dec + elm.paidAmount;
+    months.value.Aralık = months.value.Aralık + elm.paidAmount;
   }
 }
 
@@ -105,18 +105,18 @@ function filterChartByYear() {
 const date = ref(<any>new Date().getFullYear());
 
 const months = ref(<any>{
-  jan: 0,
-  feb: 0,
-  mar: 0,
-  apr: 0,
-  may: 0,
-  jun: 0,
-  jul: 0,
-  aug: 0,
-  sep: 0,
-  oct: 0,
-  nov: 0,
-  dec: 0,
+  Ocak: 0,
+  Şubat: 0,
+  Mart: 0,
+  Nisan: 0,
+  Mayıs: 0,
+  Haziran: 0,
+  Temmuz: 0,
+  Ağustos: 0,
+  Eylül: 0,
+  Ekim: 0,
+  Kasım: 0,
+  Aralık: 0,
 });
 const sumOfTotalPaidAmount = ref(<any>0);
 
@@ -124,21 +124,11 @@ Chart.register(...registerables);
 
 const chartData = computed(() => ({
   labels: [
-    "ocak",
-    "şubat",
-    "mart",
-    "nisan",
-    "mayıs",
-    "haziran",
-    "temmuz",
-    "ağustos",
-    "eylül",
-    "ekim",
-    "kasım",
-    "aralık",
+    
   ],
   datasets: [
     {
+      label : 'Miktar(tl)',
       data: months.value,
       backgroundColor: ["#77CEFF", "#0079AF", "#123E6B", "#97B0C4", "#A5C8ED"],
     },

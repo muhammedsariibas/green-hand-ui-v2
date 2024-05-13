@@ -10,6 +10,8 @@ import { fetchGet } from "@/Utils/fetchUtils";
 import "ag-grid-community/styles/ag-grid.css"; // Core grid CSS, always needed
 import "ag-grid-community/styles/ag-theme-alpine.css"; // Optional theme CSS
 import "ag-grid-enterprise";
+import "ag-grid-community/styles/ag-theme-balham.css"; // Optional theme CSS
+ 
 import { GridOptions, LicenseManager } from "ag-grid-enterprise";
 import "numeral";
 import numeral from "numeral";
@@ -249,7 +251,7 @@ async function deleteVisit() {
     <div>
       <ag-grid-vue
         style="height: calc(100vh - 280px)"
-        class="ag-theme-alpine"
+        class="ag-theme-balham"
         :columnDefs="columnDefs"
         @grid-ready="onGridReady"
         :defaultColDef="defaultColDef"
