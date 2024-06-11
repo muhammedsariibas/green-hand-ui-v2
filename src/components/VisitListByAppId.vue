@@ -17,6 +17,7 @@ import "numeral";
 import numeral from "numeral";
 import { useI18n } from "vue-i18n";
 import { tr } from "date-fns/locale";
+const props: any = defineProps(["applicationId"]);
 const locale = tr;
 const snackbarStore = useSnackbarStore();
 import {
@@ -62,7 +63,7 @@ const presetRanges = ref([
 const gridOptions = ref<GridOptions | any>(
   AgGridUtils.getDefaultGridOptions({
     rowSelection: "multiple",
-  },"visit_list_grid")
+  },"visit_by_appId_list_grid")
 );
 
 const defaultColDef = {
@@ -83,87 +84,68 @@ function updateBottomRowData() {
   gridApi.value.setPinnedBottomRowData([
     {
       paidAmount: total,
+      
+     
     },
   ]);
 }
 
-const updateData = (data: any) => {
-  rowData.value = data;
-};
+
 
 async function onGridReady(params: any) {
   isLoading.value = true;
   param.value = params;
   gridApi.value = params.api;
   columnApi.value = params.columnApi;
-  var resp = await fetchGet("/api/v1/visitation/visits");
-  console.log(resp);
-  updateData(resp);
-  updateBottomRowData();
-  isLoading.value = false;
-  AgGridUtils.applyColumnState(gridOptions.value , "visit_list_grid")
-}
-
-async function filterVisits() {
-  isLoading.value = true;
-  try {
-    var resp = await fetchGet(
-      `/api/v1/visitation/visits?startDate=${date.value[0]}&endDate=${date.value[1]}`
-    );
-
-    updateData(resp);
-  } catch (err) {}
-
+  rowData.value = await fetchGet(`/api/v1/visitation/by-application/${props.applicationId}`);
+  
+  AgGridUtils.applyColumnState(gridOptions.value , "visit_by_appId_list_grid")
   updateBottomRowData();
   isLoading.value = false;
 }
+
+
 
 const columnDefs = ref([
-  {
-    headerName: "#",
-    valueFormatter: (params: any) => {
+{
+    headerName: '#',
+    maxWidth : "50",
+    valueFormatter: (params:any) => {
       if (params.node.rowPinned) {
-        return `Toplam ziyaret : ${rowData.value.length}`;
-      }
+        return ""
+    }
       return params.node.rowIndex + 1; // Satır indeksini 1'den başlatmak için +1 ekliyoruz.
     },
-    field: "id",
-    cellStyle: { fontWeight: "bold" },
+    field : "id",
+    cellStyle: {  fontWeight: 'bold' },
+    
   },
   {
     field: "visitDate",
     headerName: "Ziyaret Tarihi",
     filter: "agTextColumnFilter",
-    valueFormatter: (params: any) => {
+    valueFormatter: (params:any) => {
       if (params.node.rowPinned) {
-        return "";
-      }
+        return `Toplam ziyaret : ${rowData.value.length}`;
+    }
       const date = new Date(params.value);
       const day = String(date.getDate()).padStart(2, "0");
       const month = String(date.getMonth() + 1).padStart(2, "0"); // Aylar 0-11 arası olduğu için +1 ekliyoruz.
       const year = date.getFullYear();
 
       return `${day}/${month}/${year}`;
+      
     },
+  
   },
   {
     field: "application.applicant.name",
-    headerName: "Ad",
+    headerName: "Ziyaret edilen adı",
     filter: "agTextColumnFilter",
   },
   {
     field: "application.applicant.surname",
-    headerName: "Soyad",
-    filter: "agTextColumnFilter",
-  },
-  {
-    field: "application.applicant.moniker",
-    headerName: "Rumuz",
-    filter: "agTextColumnFilter",
-  },
-  {
-    field: "application.category.name",
-    headerName: "Kategori",
+    headerName: "Ziyaret edilen soyadı",
     filter: "agTextColumnFilter",
   },
   {
@@ -225,9 +207,9 @@ async function deleteVisit() {
   }
   deleteDialog.value = false;
 
-  var resp = await fetchGet("/api/v1/visitation/visits");
+  rowData.value = await fetchGet(`/api/v1/visitation/by-application/${props.applicationId}`);
 
-  updateData(resp);
+  
   isLoading.value = false;
   updateBottomRowData();
 }
@@ -249,43 +231,12 @@ async function deleteVisit() {
         ></v-progress-circular>
       </v-col>
     </v-dialog>
-
-    <v-col
-      class="d-flex flex-wrap px-0 py-0"
-      style="
-        background-color: rgb(248, 248, 248);
-        border: 1px solid rgb(186, 191, 199);
-      "
-    >
-      <v-col cols="12" md="3" style="padding: 0">
-        <VueDatePicker
-          id="dialogDatePick"
-          style="padding: 0"
-          v-model="date"
-          auto-apply
-          locale="tr"
-          :format-locale="tr"
-          format="dd/MM/yyyy"
-          :enable-time-picker="false"
-          text-input
-          :teleport="true"
-          :clearable="false"
-          range
-          :preset-ranges="presetRanges"
-        >
-          <template #yearly="{ label, range, presetDateRange }">
-            <span @click="presetDateRange(range)">{{ label }}</span>
-          </template>
-        </VueDatePicker>
-      </v-col>
-      <v-col style="padding: 0" cols="12" md="3">
-        <v-btn rounded="0" elevation="0" @click="filterVisits" color="primary">Filtrele</v-btn></v-col
-      >
-    </v-col>
+   
+   
 
     <div>
       <ag-grid-vue
-        style="height: calc(100vh - 120px)"
+        style="height: calc(100vh - 280px)"
         class="ag-theme-balham"
         :columnDefs="columnDefs"
         @grid-ready="onGridReady"

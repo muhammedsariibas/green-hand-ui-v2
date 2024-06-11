@@ -3,13 +3,15 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import DrawerMenu from '@/components/DrawerMenu.vue'
+import { useRoute } from "vue-router";
 
-let drawer = ref(true);
+const currentRoute = useRoute();
+let drawer = ref(false);
 </script>
 <template>
   <v-card>
     <v-layout>
-      <v-navigation-drawer v-model="drawer" temporary location="left" theme="light">
+      <v-navigation-drawer v-model="drawer"  location="left" theme="light" temporary>
        <DrawerMenu />
       </v-navigation-drawer>
 
@@ -36,7 +38,7 @@ let drawer = ref(true);
                 to="/home"
                 style="text-decoration: none; color: white"
               >
-                <v-btn> Anasayfa </v-btn>
+                <v-btn> {{ currentRoute.name }} </v-btn>
               </router-link>
 
               <v-spacer></v-spacer>
@@ -50,7 +52,7 @@ let drawer = ref(true);
             </v-app-bar>
 
             <v-card elevation="2" style="overflow-y: auto;">
-              <v-card-text  style="height:calc( 100vh - 80px);" >
+              <v-card-text class="px-0 py-0"  style="height:calc( 100vh - 80px);" >
                 <slot />
               </v-card-text>
             </v-card>

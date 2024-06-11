@@ -10,6 +10,7 @@ import { GridOptions, LicenseManager } from "ag-grid-enterprise";
 import { fetchGet, fetchPost } from "../utils/fetchUtils";
 import { useSnackbarStore } from "@/stores/snackbarStore";
 import { onMounted } from "vue";
+import AgGridUtils from "@/utils/AgGridUtil";
 LicenseManager.setLicenseKey(
   "For_Trialing_ag-Grid_Only-Not_For_Real_Development_Or_Production_Projects-Valid_Until-16_February_2023_[v2]_MTY3NjUwNTYwMDAwMA==5a37b6995fef0d066d9a3225009488ac"
 );
@@ -46,17 +47,19 @@ var userInfo = ref(<any>{
   enabled: null,
 });
 
-const gridOptions: GridOptions<any> = {
-  rowSelection: "multiple",
-  animateRows: true,
-  masterDetail: true,
-  detailRowHeight: 300,
-};
+
+
+const gridOptions = ref<GridOptions | any>(
+  AgGridUtils.getDefaultGridOptions({
+    rowSelection: "multiple",
+  },"user_list_grid")
+);
 const defaultColDef = {
   sortable: true,
   filter: true,
-  flex: 1,
+ 
   floatingFilter: true,
+  resizable: true,
 };
 
 const columnDefs = ref([
@@ -139,6 +142,7 @@ async function onGridReady(params: any) {
 
   updateData(users);
   isLoading.value = false;
+  AgGridUtils.applyColumnState(gridOptions.value , "user_list_grid")
 }
 
 function getContextMenuItems(event: any) {
@@ -245,7 +249,7 @@ async function addUser() {
 </script>
     
 <template>
-  <v-col class="px-0 py-o">
+  <v-col class="px-0 py-0">
     <v-dialog v-model="isLoading" persistent>
       <v-col
         style="height: 100vh; width: 100%"
@@ -259,21 +263,11 @@ async function addUser() {
         ></v-progress-circular>
       </v-col>
     </v-dialog>
-    <v-col
-      ><h2
-        style="
-          font-family: 'Roboto', sans-serif;
-          font-family: 'Roboto Condensed', sans-serif;
-          font-family: 'Roboto Slab', serif;
-        "
-      >
-        Kullanıcılar
-      </h2></v-col
-    >
-    <div>
+   
+    <div class="py-0 px-0">
       <ag-grid-vue
-        style="height: calc(100vh - 220px)"
-        class="ag-theme-alpine"
+        style="height: calc(100vh - 81px)"
+        class="ag-theme-balham"
         :columnDefs="columnDefs"
         @grid-ready="onGridReady"
         :defaultColDef="defaultColDef"

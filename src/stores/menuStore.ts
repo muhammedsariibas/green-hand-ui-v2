@@ -9,16 +9,25 @@ export const useMenuStore = defineStore('menuStore', {
                 to: "/home",
                 title: "Anasayfa",
                 value: "home",
+                icon : "mdi-home"
             },
             {
                 to: "/applications",
                 title: "Başvurular",
                 value: "applications",
+                icon : "mdi-list-box"
+            },
+            {
+                to: "/application-category",
+                title: "Başvuru Kategorileri",
+                value: "application-category",
+                icon : "mdi-shape-plus"
             },
             {
                 to: "/visit",
                 title: "Ziyaret",
                 value: "visit",
+                icon : "mdi-wallet-travel",
                 items: [
                     {
                         to: "/visit/list",
@@ -35,16 +44,19 @@ export const useMenuStore = defineStore('menuStore', {
                 to: "/distribution",
                 title: "Dağıtım",
                 value: "distribution",
+                icon:"mdi-map-marker-path"
             },
             {
                 to: "/users",
                 title: "Kullanıcılar",
                 value: "users",
+                icon : "mdi-account-group"
             },
             {
                 to: "/roles",
                 title: "Roller",
                 value: "roles",
+                icon : "mdi-account-key"
             },
 
         ]

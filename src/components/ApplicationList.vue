@@ -6,31 +6,23 @@ const tab = ref<any>(null);
 </script>
 <template>
   <v-col cols="12" sm="12" md="12" class="d-flex flex-wrap px-0 py-0">
-    <v-col cols="12" sm="12" md="12"
-      ><h2
-        style="
-          font-family: 'Roboto', sans-serif;
-          font-family: 'Roboto Condensed', sans-serif;
-          font-family: 'Roboto Slab', serif;
-        "
-      >
-        Başvurular
-      </h2></v-col
-    >
-    <v-col>
+  
+    <v-col class="px-0 py-0">
       <v-tabs
+      class="px-0"
       v-model="tab"
-      bg-color="#543AB7"
+      density="compact"
+      color="primary"
     >
-      <v-tab value="one">Nakdi</v-tab>
-      <v-tab value="two">Diğer</v-tab>
+      <v-tab   value="one">Nakdi</v-tab>
+      <v-tab  value="two">Diğer</v-tab>
     </v-tabs>
-    <v-window v-model="tab" >
-        <v-window-item value="one">
+    <v-window v-model="tab" class="px-0 py-0">
+        <v-window-item value="one" class="px-0 py-0">
           <CashAidApplicationList></CashAidApplicationList>
         </v-window-item>
 
-        <v-window-item value="two">
+        <v-window-item value="two" class="px-0 py-0">
           <OneTimeAidApplicationList></OneTimeAidApplicationList>
         </v-window-item>
 

@@ -14,10 +14,13 @@
     "@babel/types": "^7.21.3",
     "@mdi/font": "^7.4.47",
     "@vuepic/vue-datepicker": "^4.2.0",
+    "@vueuse/core": "^10.7.1",
+    "@vueuse/integrations": "^10.7.1",
     "ag-grid-community": "^29.0.0",
     "ag-grid-enterprise": "^29.0.0",
     "ag-grid-vue3": "^29.0.0",
     "chart.js": "^3.9.1",
+    "moment": "^2.30.1",
     "numeral": "^2.0.6",
     "pinia": "^2.1.7",
     "query-string": "^8.1.0",
@@ -26,9 +29,7 @@
     "vue-chart-3": "^3.1.8",
     "vue-i18n": "^9.9.0",
     "vue-router": "^4.2.5",
-    "webfontloader": "^1.6.28",
-    "@vueuse/core": "^10.7.1",
-    "@vueuse/integrations": "^10.7.1"
+    "webfontloader": "^1.6.28"
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.2",

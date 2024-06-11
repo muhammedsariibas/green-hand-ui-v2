@@ -2,6 +2,7 @@
 import VueDatePicker from "@vuepic/vue-datepicker";
 import { useSnackbarStore } from "@/stores/snackbarStore";
 import { fetchPost, fetchGet, fetchPut } from "@/Utils/fetchUtils";
+import AgGridUtils from "@/utils/AgGridUtil";
 import { AgGridVue } from "ag-grid-vue3"; // the AG Grid Vue Component
 import "ag-grid-community/styles/ag-grid.css"; // Core grid CSS, always needed
 import "ag-grid-community/styles/ag-theme-balham.css"; // Optional theme CSS
@@ -99,17 +100,19 @@ function setPinnedRowData() {
   
 }
 
-// detailCellRenderer: agGridApplicantsInfo,
-const gridOptions: GridOptions<any> = {
-  rowSelection: "single",
-  animateRows: true,
-  detailRowHeight: 300,
-};
+
+const gridOptions = ref<GridOptions | any>(
+  AgGridUtils.getDefaultGridOptions({
+   
+  },"one_time_aid_application_list_grid")
+);
+
+
 
 const defaultColDef = {
   sortable: true,
   filter: true,
-  flex: 1,
+ 
   floatingFilter: true,
   resizable : true
 };
@@ -153,6 +156,9 @@ async function onGridReady(params: any) {
   gridApi.value = params.api;
   columnApi.value = params.columnApi;
   gridApi.value.getDisplayedRowCount();
+
+  
+ AgGridUtils.applyColumnState(gridOptions.value , "one_time_aid_application_list_grid")
 }
 async function closeDialogAndRefreshData() {
   appUpdateDialog.value = false;
@@ -186,9 +192,10 @@ watchEffect(async () => {
     </v-dialog>
 
    
-    <v-col cols="12" md="12" sm="12" class="py-1">
-      <v-col class="px-0 pb-0 pt-2" cols="12" sm="4" md="4">
+    <v-col cols="12" md="12" sm="12" class="py-1 px-0">
+      <v-col class="px-0 pb-0 pt-1" cols="12" sm="4" md="4">
         <v-select
+        hide-details=""
           variant="outlined"
           rounded="0"
           density="compact"
@@ -201,15 +208,14 @@ watchEffect(async () => {
         </v-select>
       </v-col>
     </v-col>
-    <v-col cols="12" md="12" sm="12" class="py-1">
+    <v-col cols="12" md="12" sm="12" class="py-0 px-0">
       <ag-grid-vue
-        style="height: calc(100vh - 350px)"
+        style="height: calc(100vh - 168px)"
         class="ag-theme-balham"
         :columnDefs="columnDefs"
         @grid-ready="onGridReady"
         :defaultColDef="defaultColDef"
         :gridOptions="gridOptions"
-        :getContextMenuItems="getContextMenuItems"
         :rowData="rowData"
         :enableFilter="true"
         :onRowDoubleClicked="onRowDoubleClicked"

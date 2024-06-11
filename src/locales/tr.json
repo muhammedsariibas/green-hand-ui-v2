@@ -41,6 +41,8 @@
     "THIRD_DEGREE": "ÜÇÜNCÜ DERECE",
     "JUST_VISITED": "Yeni ziyaret edilmiş",
     "MONEY_GIVEN": "Maddi yardım yapıldı",
+    "MONEY_GIVEN_APPROVED" : "Maddi yardım(Onaylı)",
+    "MONEY_GIVEN_UNAPPROVED" : "Maddi yardım(Onaysız)",
     "REVIEWED": "İncelendi",
     "REVIEWED_AND_MONEY_GIVEN": "İncelendi ve maddi yardım yapıldı"
 }

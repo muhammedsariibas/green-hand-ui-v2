@@ -12,6 +12,7 @@ import Users from '../components/Users.vue'
 import Roles from '../components/Roles.vue'
 import Index from '../components/Index.vue'
 import OneTimeAidApplication from '@/components/Public/OneTimeAidApplication.vue'
+import ApplicationCategory from '@/components/ApplicationCategory.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
 
@@ -26,14 +27,14 @@ const router = createRouter({
     },
     {
       path: '/login',
-      name: 'LoginPage',
+      name: 'Giriş',
       component: LoginPage,
       meta: {
         layout: LoginPage,
       }
     },
     {
-      name: 'one-time-aid-application',
+      name: 'Tek Seferlik Yardım',
       path: '/one-time-aid',
       component: () => import('@/components/Public/OneTimeAidApplication.vue'),
       meta : {
@@ -42,7 +43,7 @@ const router = createRouter({
     },
     {
       path: '/home',
-      name: 'Home',
+      name: 'Anasayfa',
       component: HomeVue,
       meta: {
         layout: DefaultVue
@@ -50,7 +51,7 @@ const router = createRouter({
     },
     {
       path: '/application',
-      name: 'Application',
+      name: 'Başvuru',
       component: Application,
       meta: {
         layout: Application
@@ -58,7 +59,7 @@ const router = createRouter({
     },
     {
       path: '/success',
-      name: 'success',
+      name: 'Başarılı',
       component: SuccessPage,
       meta: {
         layout: SuccessPage
@@ -66,7 +67,7 @@ const router = createRouter({
     },
     {
       path: '/applications',
-      name: 'applications',
+      name: 'Başvurular',
       component: ApplicationList,
       meta: {
         layout: DefaultVue
@@ -74,7 +75,7 @@ const router = createRouter({
     },
     {
       path: '/visit-list',
-      name: 'visit-list',
+      name: 'Ziyaret Kayıt',
       component: VisitListComp,
       meta: {
         layout: DefaultVue
@@ -82,7 +83,7 @@ const router = createRouter({
     },
     {
       path: '/visit-report',
-      name: 'visit-report',
+      name: 'Ziyaret Rapor',
       component: VisitReportComp,
       meta: {
         layout: DefaultVue
@@ -90,7 +91,7 @@ const router = createRouter({
     },
     {
       path: '/users',
-      name: 'users',
+      name: 'Kullanıcılar',
       component: Users,
       meta: {
         layout: DefaultVue
@@ -98,8 +99,16 @@ const router = createRouter({
     },
     {
       path: '/roles',
-      name: 'roles',
+      name: 'Roller',
       component: Roles,
+      meta: {
+        layout: DefaultVue
+      }
+    },
+    {
+      path: '/application-category',
+      name: 'Başvuru Kategorileri',
+      component: ApplicationCategory,
       meta: {
         layout: DefaultVue
       }

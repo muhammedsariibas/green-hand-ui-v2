@@ -3,9 +3,11 @@ import VueDatePicker from "@vuepic/vue-datepicker";
 import approvalStatus from "@/enums/ApprovalStatus";
 import approvalDegree from "@/enums/ApprovalDegree";
 import actionStatus from "@/enums/VisitActionStatus";
+import AgGridUtils from "@/utils/AgGridUtil";
 import { useSnackbarStore } from "@/stores/snackbarStore";
 import { fetchPost, fetchGet, fetchPut } from "@/Utils/fetchUtils";
 import ApplicationDetail from "./ApplicationDetail.vue";
+import ApplicationVisitDetail from "./ApplicationVisitDetail.vue";
 import ApplicationComp from "./ApplicationComp.vue";
 import { AgGridVue } from "ag-grid-vue3"; // the AG Grid Vue Component
 import "ag-grid-community/styles/ag-grid.css"; // Core grid CSS, always needed
@@ -30,13 +32,20 @@ const rowData = ref<any>(null);
 let isLoading = ref<boolean>(false);
 let appDetailDialog = ref<boolean>(false);
 let appUpdateDialog = ref<boolean>(false);
+let appAssignCategoryDialog = ref<boolean>(false);
 let statusChangeDialog = ref<boolean>(false);
 let applicationFromRowDoubleClick = ref<any>(null);
+let applicationFromContextMenu = ref<any>(null);
 let applicationIdFromContextMenuItem = ref<any>(null);
+let categories = ref(<any>[]);
+let categoryId = ref(<any>null);
 let userData = ref<any>(null);
 let snackbarStore = useSnackbarStore();
 let visitDialog = ref<any>(null);
 let selectedApprovalStatus = ref<any>("NEW");
+let alertMessage = ref<any>(false);
+let assignMonikerDialog = ref<any>(false);
+let moniker = ref<any>(null);
 const appStatusObject = ref(<any>{
   appId: null,
   degree: null,
@@ -55,19 +64,27 @@ const newVisitObject = ref(<any>{
 });
 const { t } = useI18n();
 
+
+
 const columnDefs = ref([
- {
-  headerName: '#', valueGetter: 'node.rowIndex + 1' ,field : "count", maxWidth: 40,
- },
+  {
+    headerName: "#",
+    valueGetter: "node.rowIndex + 1",
+    field: "count",
+  },
   {
     field: "applicant.name",
     headerName: "Ad",
-    cellRenderer: "agGroupCellRenderer",
-    filter: "agTextColumnFilter",
+    
   },
   {
     field: "applicant.surname",
     headerName: "Soyad",
+    filter: "agTextColumnFilter",
+  },
+  {
+    field: "applicant.moniker",
+    headerName: "Rumuz",
     filter: "agTextColumnFilter",
   },
   {
@@ -76,29 +93,27 @@ const columnDefs = ref([
     filter: "agTextColumnFilter",
   },
   {
-
     headerName: "Memleket",
     filter: "agTextColumnFilter",
     valueGetter: (params: any) => {
       // params.node.data.province ? params.node.data.province.name /  : null;
-      let province= null;
-      let district= null;
-      let neighborhood= null;
-      
-      if(params.node.data.applicant.province != null){
-        console.log(params.node.data.applicant.province.name)
+      let province = null;
+      let district = null;
+      let neighborhood = null;
+
+      if (params.node.data.applicant.province != null) {
+        console.log(params.node.data.applicant.province.name);
         province = params.node.data.applicant.province.name;
       }
-      if(params.node.data.applicant.district != null){
+      if (params.node.data.applicant.district != null) {
         district = params.node.data.applicant.district.name;
       }
-      if(params.node.data.applicant.neighborhood != null){
+      if (params.node.data.applicant.neighborhood != null) {
         neighborhood = params.node.data.applicant.neighborhood.name;
       }
-      
-      
-      return province + "/" + district + "/" + neighborhood 
-    }
+
+      return province + "/" + district + "/" + neighborhood;
+    },
   },
   {
     field: "applicant.phone",
@@ -126,48 +141,88 @@ const columnDefs = ref([
     headerName: "Açıklama",
     filter: "agTextColumnFilter",
   },
+  {
+    field: "category.name",
+    headerName: "Kategori",
+  },
 ]);
 
-// detailCellRenderer: agGridApplicantsInfo,
-const gridOptions: GridOptions<any> = {
-  rowSelection: "single",
-  animateRows: true,
-  detailRowHeight: 300,
-};
+// // detailCellRenderer: agGridApplicantsInfo,
+// const gridOptions: GridOptions<any> = {
+
+//   getRowStyle: params => {
+//     console.log(params.node.data.isIncomplete)
+//         if (params.node.data.isIncomplete) {
+//             return { background: '#EF9A9A' };
+//         }
+//     },
+//   rowSelection: "multiple",
+//   animateRows: true,
+//   detailRowHeight: 300,
+// };
+
+const gridOptions = ref<GridOptions | any>(
+  AgGridUtils.getDefaultGridOptions({
+    rowSelection: "multiple",
+    getRowStyle: (params) => {
+      console.log(params.node.data.isIncomplete);
+      if (params.node.data.isIncomplete) {
+        return { background: "#EF9A9A" };
+      }
+    },
+  },"cash_aid_application_list_grid")
+);
 
 const defaultColDef = {
   sortable: true,
   filter: true,
-  flex: 1,
+
   floatingFilter: true,
-  resizable : true
+  resizable: true,
 };
 
+async function assignMoniker() {
+  isLoading.value = true;
 
+  applicationFromContextMenu.value.applicant.moniker = moniker.value;
+
+  const response = await fetchPost(
+    "/public/api/v1/application/0",
+    { method: "POST" },
+    applicationFromContextMenu.value
+  );
+
+  if (response.code == 200) {
+    assignMonikerDialog.value = false;
+    snackbarStore.makeToast(true, "success", "İşlem Başarılı.");
+  } else {
+    assignMonikerDialog.value = false;
+    snackbarStore.makeToast(true, "error", "İşlem Başarısız.");
+  }
+
+  rowData.value = await fetchData(selectedApprovalStatus.value);
+
+  isLoading.value = false;
+}
 
 function setPinnedRowData() {
-  
   let count = 0;
 
-  gridApi.value.forEachNode((param : any)=>{
+  gridApi.value.forEachNode((param: any) => {
     count += 1;
-  })
+  });
 
   gridApi.value.setPinnedBottomRowData([
     {
-      applicant : {
-        name : `Toplam Başvuru : ${count}`
-      }
-
+      applicant: {
+        name: `Toplam Başvuru : ${count}`,
+      },
     },
   ]);
-
-  
 }
 
 //FUNCTIONS
 async function fetchData(statuses: any) {
-    
   isLoading.value = true;
   var data = [];
   try {
@@ -175,19 +230,19 @@ async function fetchData(statuses: any) {
   } catch (err) {
     snackbarStore.makeToast(true, "error", "Bir problem oluştu");
   }
- 
+
   isLoading.value = false;
   return data;
 }
 
 function getContextMenuItems(params: any) {
-  return [
+  let arr = [
     {
       name: "Onay Durumunu düzenle",
       action: async () => {
-        
         statusChangeDialog.value = true;
         appStatusObject.value.appId = params.node.data.id;
+        appStatusObject.value.approvalStatus = params.node.data.status;
       },
     },
     {
@@ -198,15 +253,59 @@ function getContextMenuItems(params: any) {
       },
     },
     {
-      name: "Ziyaret gir",
+      name: "Kategori Atama",
       action: async () => {
-        visitDialog.value = true;
-        newVisitObject.value.application.id = params.node.data.id;
+        categories.value = await fetchGet("/api/v1/application/category");
+        appAssignCategoryDialog.value = true;
+      },
+    },
+    {
+      name: "Kullanıcıya Rumuz Ata",
+      action: async () => {
+        applicationFromContextMenu.value = params.node.data;
+        assignMonikerDialog.value = true;
       },
     },
   ];
+
+  if (params.node.data.status == "APPROVED") {
+    arr.push({
+      name: "Ziyaret gir",
+      action: async () => {
+        visitDialog.value = true;
+        newVisitObject.value.visitor = await fetchGet(
+          "/public/api/v1/auth/current-user"
+        );
+        newVisitObject.value.application.id = params.node.data.id;
+        newVisitObject.value.greeter =
+          params.node.data.applicant.name + "(KENDİSİ)";
+        newVisitObject.value.action = "MONEY_GIVEN_APPROVED";
+        checkSameDayVisit();
+      },
+    });
+  }
+
+  return arr;
 }
 
+async function checkSameDayVisit() {
+  isLoading.value = true;
+  alertMessage.value = false;
+  var date = new Date(decodeURIComponent(newVisitObject.value.visitDate));
+  date.setDate(date.getDate() + 1);
+
+  var newDate = date.toString();
+  var resp = await fetchGet(
+    `/api/v1/visitation/visits?startDate=${newVisitObject.value.visitDate}&endDate=${newDate}`
+  );
+
+  resp.forEach((el: any) => {
+    if (el.application.id == newVisitObject.value.application.id) {
+      alertMessage.value = true;
+    }
+  });
+  isLoading.value = false;
+}
 function onRowDoubleClicked(params: any) {
   applicationFromRowDoubleClick.value = params.node.data;
   appDetailDialog.value = true;
@@ -216,15 +315,33 @@ async function onGridReady(params: any) {
   gridApi.value = params.api;
   columnApi.value = params.columnApi;
   userData.value = await fetchGet("/api/v1/auth/users");
-    
-  setPinnedRowData()
-  
-  
-
+  AgGridUtils.applyColumnState(gridOptions.value , "cash_aid_application_list_grid")
+  setPinnedRowData();
 }
 async function closeDialogAndRefreshData() {
   appUpdateDialog.value = false;
   rowData.value = await fetchData(selectedApprovalStatus.value);
+}
+
+async function assignCategoryToApplications() {
+  console.log(categoryId);
+
+  let arr = gridApi.value.getSelectedRows().map((t: any) => t.id);
+
+  let resp = await fetchPost(
+    `/api/v1/application/${categoryId.value}/category`,
+    { method: "POST" },
+    arr
+  );
+
+  if (resp.code == 200) {
+    appAssignCategoryDialog.value = false;
+    snackbarStore.makeToast(true, "success", "İşlem başarılı.");
+    rowData.value = await fetchData(selectedApprovalStatus.value);
+  } else {
+    appAssignCategoryDialog.value = false;
+    snackbarStore.makeToast(true, "error", "İşlem başarısız.");
+  }
 }
 
 async function changeAppStatus() {
@@ -254,6 +371,8 @@ async function changeAppStatus() {
 
 async function addVisit() {
   isLoading.value = true;
+
+  delete newVisitObject.value.visitor.username;
   try {
     const resp = await fetchPost(
       "/api/v1/visitation",
@@ -283,16 +402,24 @@ async function addVisit() {
   isLoading.value = false;
 }
 
-//WATCHEFFECT
-watchEffect(async () => {
+async function filterByStatus() {
   if (selectedApprovalStatus.value != null) {
     rowData.value = await fetchData(selectedApprovalStatus.value);
-    setTimeout(()=>{
-      setPinnedRowData()
-    },200)
-    
+    setTimeout(() => {
+      setPinnedRowData();
+    }, 200);
   }
-});
+}
+
+//WATCHEFFECT
+// watchEffect(async () => {
+//   if (selectedApprovalStatus.value != null) {
+//     rowData.value = await fetchData(selectedApprovalStatus.value);
+//     setTimeout(() => {
+//       setPinnedRowData();
+//     }, 200);
+//   }
+// });
 </script>
 <template>
   <v-col cols="12" sm="12" md="12" class="d-flex flex-wrap px-0 py-0">
@@ -309,25 +436,103 @@ watchEffect(async () => {
         ></v-progress-circular>
       </v-col>
     </v-dialog>
+    <v-dialog v-model="appAssignCategoryDialog" persistent width="600">
+      <v-card>
+        <v-card-title>
+          <span class="text-h5">Kategori ata</span>
+        </v-card-title>
+        <v-card-text class="d-flex flex-wrap px-0">
+          <v-col cols="12" sm="12" class="d-flex flex-wrap">
+            <v-select
+              hide-details
+              density="compact"
+              class="pr-3"
+              v-model="categoryId"
+              :items="categories"
+              item-title="name"
+              item-value="id"
+              label="Onay Durumu"
+              required
+            ></v-select>
+          </v-col>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="error"
+            variant="plain"
+            @click="appAssignCategoryDialog = false"
+          >
+            İptal
+          </v-btn>
+          <v-btn
+            color="success"
+            variant="tonal"
+            @click="assignCategoryToApplications"
+          >
+            Kaydet
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="assignMonikerDialog" persistent width="600">
+      <v-card>
+        <v-card-title>
+          <span class="text-h5">Rumuz Ata</span>
+        </v-card-title>
+        <v-card-text class="d-flex flex-wrap px-0">
+          <v-col cols="12" sm="12" class="d-flex flex-wrap">
+            <v-text-field
+              hide-details
+              density="compact"
+              class="pr-3"
+              v-model="moniker"
+              label="Onay Durumu"
+              required
+            ></v-text-field>
+          </v-col>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="error"
+            variant="plain"
+            @click="assignMonikerDialog = false"
+          >
+            İptal
+          </v-btn>
+          <v-btn color="success" variant="tonal" @click="assignMoniker">
+            Kaydet
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="appDetailDialog" persistent>
       <v-col
         cols="12"
         sm="12"
         md="12"
-        class="d-flex justify-center align-center"
+        class="d-flex justify-center align-center px-0 py-0"
       >
-        <v-col cols="12" sm="11" md="11" style="background-color: white">
-          <v-btn
-            style="float: right"
-            size="medium"
-            icon
-            variant="text"
-            @click="appDetailDialog = !appDetailDialog"
-            ><v-icon>mdi-close</v-icon></v-btn
+        <v-col
+          cols="12"
+          sm="11"
+          md="11"
+          style="background-color: white"
+          class="px-0 py-0"
+        >
+          <ApplicationVisitDetail
+            :application-id="applicationFromRowDoubleClick.id"
           >
-          <application-detail
-            :application="applicationFromRowDoubleClick"
-          ></application-detail>
+            <v-btn
+              style="float: right"
+              icon
+              variant="text"
+              @click="appDetailDialog = !appDetailDialog"
+              ><v-icon size="large">mdi-close</v-icon></v-btn
+            ></ApplicationVisitDetail
+          >
         </v-col>
       </v-col>
     </v-dialog>
@@ -410,7 +615,7 @@ watchEffect(async () => {
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog width="600" v-model="visitDialog" persistent>
+    <v-dialog width="800" v-model="visitDialog" persistent>
       <v-card>
         <v-card-title>
           <span class="text-h5">Ziyaret Gir</span>
@@ -423,10 +628,16 @@ watchEffect(async () => {
               format="dd/MM/yyyy"
               id="dialogDatePicker"
               v-model="newVisitObject.visitDate"
+              @update:model-value="checkSameDayVisit"
               text-input
               :teleport="true"
               :clearable="false"
             />
+          </v-col>
+          <v-col cols="12" sm="12" md="12" class="py-0">
+            <v-alert class="pt-3" type="warning" v-if="alertMessage"
+              >Bu Tarihte Ödeme yapılmıştır.</v-alert
+            >
           </v-col>
           <v-col cols="12" md="6">
             <v-text-field
@@ -491,10 +702,11 @@ watchEffect(async () => {
         </v-card-actions>
       </v-card>
     </v-dialog>
-  
-    <v-col cols="12" md="12" sm="12" class="py-1">
-      <v-col class="px-0 pb-0 pt-2" cols="12" sm="4" md="4" >
+
+    <v-col cols="12" md="12" sm="12" class="py-1 px-0">
+      <v-col class="px-0 pb-0 pt-2 d-flex" cols="12" sm="3" md="3">
         <v-select
+          hide-details
           variant="outlined"
           rounded="0"
           density="compact"
@@ -506,11 +718,19 @@ watchEffect(async () => {
           v-model="selectedApprovalStatus"
         >
         </v-select>
+        <v-btn
+          rounded="0"
+          color="primary"
+          elevation="0"
+          @click="filterByStatus"
+        >
+          Filtrele
+        </v-btn>
       </v-col>
     </v-col>
-    <v-col cols="12" md="12" sm="12" class="py-1">
+    <v-col cols="12" md="12" sm="12" class="py-0 px-0">
       <ag-grid-vue
-        style="height: calc(100vh - 350px)"
+        style="height: calc(100vh - 172px)"
         class="ag-theme-balham"
         :columnDefs="columnDefs"
         @grid-ready="onGridReady"

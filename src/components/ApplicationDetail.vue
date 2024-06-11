@@ -2,19 +2,27 @@
 const props: any = defineProps(["application"]);
 </script>
 <template>
-  <v-col cols="12" sm="12" md="12" class="px-0 py-0 d-flex flex-wrap" style="overflow: auto; height: 90vh;">
-    <v-col cols="12" sm="12" md="12"
-      ><h1
+  <v-col cols="12" sm="12" md="12" class="px-0 py-0 d-flex flex-wrap" style="overflow: auto; ">
+    <v-col cols="12" sm="12" md="12" class="pb-0"
+      ><h1 
         style="
           font-family: 'Roboto', sans-serif;
           font-family: 'Roboto Condensed', sans-serif;
           font-family: 'Roboto Slab', serif;
         "
       >
-        Başvuru Detayları
+      {{
+                application.applicant.name
+                  ? $t(application.applicant.name)
+                  : "--"
+              }} {{
+                application.applicant.surname
+                  ? application.applicant.surname
+                  : "--"
+              }} <slot/>
       </h1>
     </v-col>
-    <v-col cols="12" sm="12" md="12">
+    <v-col cols="12" sm="12" md="12" class="pt-0">
       <h2>Kişisel Bilgiler</h2>
       <v-table fixed-header density="compact">
         <thead>

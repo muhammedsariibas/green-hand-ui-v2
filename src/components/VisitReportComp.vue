@@ -13,25 +13,15 @@
         ></v-progress-circular>
       </v-col>
     </v-dialog>
-    <v-col>
-      <h2
-        style="
-          font-family: 'Roboto', sans-serif;
-          font-family: 'Roboto Condensed', sans-serif;
-          font-family: 'Roboto Slab', serif;
-        "
-      >
-        Ziyaret Rapor
-      </h2>
-    </v-col>
+
     <v-col
-      class="d-flex flex-wrap"
+      class="d-flex flex-wrap px-0 py-0"
       style="
         background-color: rgb(248, 248, 248);
         border: 1px solid rgb(186, 191, 199);
       "
     >
-      <v-col cols="12" md="3" style="padding: 0">
+      <v-col cols="12" md="2" style="padding: 0">
         <VueDatePicker
           style="padding: 0"
           v-model="date"
@@ -47,13 +37,15 @@
         </VueDatePicker>
       </v-col>
       <v-col style="padding: 0" cols="12" md="3">
-        <v-btn @click="filterVisits" color="primary">Filtrele</v-btn></v-col
+        <v-btn rounded="0" elevation="0" @click="filterVisits" color="primary"
+          >Filtrele</v-btn
+        ></v-col
       >
     </v-col>
 
     <div>
       <ag-grid-vue
-        style="height: calc(100vh - 280px)"
+        style="height: calc(100vh - 120px)"
         class="ag-theme-balham"
         :columnDefs="columnDefs"
         @grid-ready="onGridReady"
@@ -71,6 +63,7 @@
   
   <script lang="ts" setup>
 import VueDatePicker from "@vuepic/vue-datepicker";
+import AgGridUtils from "@/utils/AgGridUtil";
 import "@vuepic/vue-datepicker/dist/main.css";
 import { ref } from "@vue/reactivity";
 import { AgGridVue } from "ag-grid-vue3"; // the AG Grid Vue Component
@@ -88,7 +81,6 @@ const locale = tr;
 LicenseManager.setLicenseKey(
   "For_Trialing_ag-Grid_Only-Not_For_Real_Development_Or_Production_Projects-Valid_Until-16_February_2023_[v2]_MTY3NjUwNTYwMDAwMA==5a37b6995fef0d066d9a3225009488ac"
 );
-
 
 const date = ref(new Date().getFullYear());
 const gridApi = ref(<any>null);
@@ -187,6 +179,7 @@ onMounted(async () => {
   const arr: any[] = [];
   const year = new Date().getFullYear();
   var resp = await fetchGet(`/api/v1/visitation/${year}/report`);
+  console.log(resp)
   resp.forEach((elm: any) => {
     sumMonthsPaid(elm);
 
@@ -201,7 +194,7 @@ onMounted(async () => {
       assignToMonth(elm.visitMonth, elm.paidAmount, newElm);
       arr.push(newElm);
     }
-    console.log(arr);
+   
     updateData(arr);
   });
 
@@ -274,24 +267,27 @@ function assignToMonth(visitMonth: any, paidAmount: any, elm: any) {
   }
 }
 
-const gridOptions: GridOptions = {
-  rowSelection: "single",
-  animateRows: true,
-  masterDetail: true,
-  detailRowHeight: 300,
-};
+
+
+const gridOptions = ref<GridOptions | any>(
+  AgGridUtils.getDefaultGridOptions({
+    rowSelection: "multiple",
+  },"visit_report_list_grid")
+);
 
 const defaultColDef = {
   sortable: true,
   filter: true,
-  flex: 1,
+
   floatingFilter: true,
+  resizable: true,
 };
 
 function onGridReady(params: any) {
   gridApi.value = params.api;
   columnApi.value = params.columnApi;
   updateBottomRowData();
+  AgGridUtils.applyColumnState(gridOptions.value , "visit_report_list_grid")
 }
 
 function updateBottomRowData() {
@@ -335,7 +331,7 @@ async function filterVisits() {
         newElm.months = {};
 
         assignToMonth(elm.visitMonth, elm.paidAmount, newElm);
-        console.log(newElm);
+     
         arr.push(newElm);
       }
       updateData(arr);
@@ -356,6 +352,21 @@ const columnDefs = ref([
   {
     field: "name",
     headerName: "Ad",
+    filter: "agTextColumnFilter",
+  },
+  {
+    field: "surname",
+    headerName: "Soyadı",
+    filter: "agTextColumnFilter",
+  },
+  {
+    field: "moniker",
+    headerName: "Rumuz",
+    filter: "agTextColumnFilter",
+  },
+  {
+    field: "category",
+    headerName: "Kategori",
     filter: "agTextColumnFilter",
   },
   {

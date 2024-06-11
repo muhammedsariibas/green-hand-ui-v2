@@ -8,6 +8,7 @@ import "ag-grid-enterprise";
 import { useSnackbarStore } from "@/stores/snackbarStore";
 import { GridOptions, LicenseManager } from "ag-grid-enterprise";
 import { fetchGet, fetchPost } from "../utils/fetchUtils";
+import AgGridUtils from "@/utils/AgGridUtil";
 LicenseManager.setLicenseKey(
   "For_Trialing_ag-Grid_Only-Not_For_Real_Development_Or_Production_Projects-Valid_Until-16_February_2023_[v2]_MTY3NjUwNTYwMDAwMA==5a37b6995fef0d066d9a3225009488ac"
 );
@@ -36,17 +37,21 @@ const newRole = ref(<any>{
   permissionIds: [],
 });
 
-const gridOptions: GridOptions<any> = {
-  rowSelection: "single",
-  animateRows: true,
-  masterDetail: true,
-  detailRowHeight: 300,
-};
+
+
+const gridOptions = ref<GridOptions | any>(
+  AgGridUtils.getDefaultGridOptions({
+   
+  },"role_list_grid")
+);
+
 const defaultColDef = {
   sortable: true,
   filter: true,
-  flex: 1,
+  
   floatingFilter: true,
+  resizable: true,
+  
 };
 async function onGridReady(params: any) {
   gridApi.value = params.api;
@@ -68,6 +73,7 @@ async function onGridReady(params: any) {
   }
 
   updateData(resp);
+  AgGridUtils.applyColumnState(gridOptions.value , "role_list_grid")
 }
 
 async function fetchRoles() {
@@ -188,7 +194,7 @@ async function editRole() {
   
   
 <template>
-  <v-col class="px-0 py-o">
+  <v-col class="px-0 py-0">
     <v-dialog v-model="isLoading" persistent>
       <v-col
         style="height: 100vh; width: 100%"
@@ -202,21 +208,11 @@ async function editRole() {
         ></v-progress-circular>
       </v-col>
     </v-dialog>
-    <v-col
-      ><h2
-        style="
-          font-family: 'Roboto', sans-serif;
-          font-family: 'Roboto Condensed', sans-serif;
-          font-family: 'Roboto Slab', serif;
-        "
-      >
-        Roller
-      </h2></v-col
-    >
+    
     <div>
       <ag-grid-vue
-      style="height: calc(100vh - 220px)"
-        class="ag-theme-alpine"
+      style="height: calc(100vh - 81px)"
+        class="ag-theme-balham"
         :columnDefs="columnDefs"
         @grid-ready="onGridReady"
         :defaultColDef="defaultColDef"
